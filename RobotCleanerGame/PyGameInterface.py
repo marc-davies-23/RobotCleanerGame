@@ -53,6 +53,11 @@ class PyGameInterface(Interface):
 
         main.draw()
 
+    def draw_menu_screen(self):
+        menu = menu_screen_factory(self)
+
+        menu.draw()
+
     def event_start(self) -> None:
         title_screen = title_screen_factory(self.window, self.win_width)
 
@@ -246,22 +251,22 @@ def main_screen_factory(interface, actions) -> PyGameScreen:
     y = interface.win_height - TILE_SIZE - FEEDBACK_TEXT_BOX_HEIGHT
 
     avail = Game.is_action_type_in_actions(Move.__name__, actions)
-    main.add_element(button_menu_factory(interface, Move, avail, STATE_FLAG_MOVE_PRESSED,
+    main.add_element(main_button_factory(interface, Move, avail, STATE_FLAG_MOVE_PRESSED,
                                          BUT_MOVE_PRESSED, BUT_MOVE_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
     avail = Game.is_action_type_in_actions(PickUp.__name__, actions)
-    main.add_element(button_menu_factory(interface, PickUp, avail, STATE_FLAG_PICK_PRESSED,
+    main.add_element(main_button_factory(interface, PickUp, avail, STATE_FLAG_PICK_PRESSED,
                                          BUT_PICK_PRESSED, BUT_PICK_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
     avail = Game.is_action_type_in_actions(Drop.__name__, actions)
-    main.add_element(button_menu_factory(interface, Drop, avail, STATE_FLAG_DROP_PRESSED,
+    main.add_element(main_button_factory(interface, Drop, avail, STATE_FLAG_DROP_PRESSED,
                                          BUT_DROP_PRESSED, BUT_DROP_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
     avail = Game.is_action_type_in_actions(Sweep.__name__, actions)
-    main.add_element(button_menu_factory(interface, Sweep, avail, STATE_FLAG_SWEP_PRESSED,
+    main.add_element(main_button_factory(interface, Sweep, avail, STATE_FLAG_SWEP_PRESSED,
                                          BUT_SWEEP_PRESSED, BUT_SWEEP_UNPRESS, x, y))
 
     # Now draw the robot's stack
@@ -309,7 +314,7 @@ def main_screen_factory(interface, actions) -> PyGameScreen:
     return main
 
 
-def button_menu_factory(interface, action, available, state_flag,
+def main_button_factory(interface, action, available, state_flag,
                         image_pressed, image_unpressed, x, y) -> PyGameImageScreenElement:
     if not available:
         image = BUT_UNAVAILABLE
@@ -328,9 +333,19 @@ def button_menu_factory(interface, action, available, state_flag,
     return PyGameImageScreenElement(interface.window, x, y, image=image)
 
 
+def menu_screen_factory(interface) -> PyGameScreen:
+    x = int(interface.win_width / 2) - TILE_SIZE
+    y = int(interface.win_height / 2) + TILE_SIZE
+
+    menu = PyGameScreen(interface.window)
+
+    return menu
+
+
 def help_screen_factory(window, message) -> PyGameScreen:
     x = 0
     y = 0
+
     help_screen = PyGameScreen(window)
 
     for key, txt in TOKEN_DESCRIPTIONS.items():
