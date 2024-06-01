@@ -11,9 +11,13 @@ def map_pixel_to_tile_coord(pixel_coords: (int, int)) -> (int, int):
 
 
 class PyGameInterface(Interface):
+    menu_response_play = MENU_RESPONSE_PLAY
+    menu_response_load = MENU_RESPONSE_LOAD
+    menu_response_quit = MENU_RESPONSE_QUIT
+
     def __init__(self, game: Game, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
         super().__init__(game)
-        self.state = {CURRENT_SCREEN: MAIN_SCREEN,
+        self.state = {CURRENT_SCREEN: MENU_SCREEN,
                       PRESSED_BUTTON: None}
         self.win_width = win_width
         self.win_height = win_height
@@ -105,6 +109,16 @@ class PyGameInterface(Interface):
         return None
 
     def process_mouse_click(self) -> (Action | None):
+
+        if self.state[CURRENT_SCREEN] == MAIN_SCREEN:
+            return self.process_mouse_click_main()
+        elif self.state[CURRENT_SCREEN] == MENU_SCREEN:
+            return self.process_mouse_click_menu()
+        else:
+            # Last catch all
+            return None
+
+    def process_mouse_click_main(self) -> (Action | None):
         x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
 
         try:
@@ -148,6 +162,30 @@ class PyGameInterface(Interface):
             pass
 
         # Last catch all
+        return None
+
+    def process_mouse_click_menu(self) -> (Action | None):
+        x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
+
+        try:
+            response = self.screen_inventory[(x, y)]
+
+        except KeyError:
+            return None
+
+        match response:
+            case PyGameInterface.menu_response_play:
+                # Change current screen to main
+                self.state[CURRENT_SCREEN] = MAIN_SCREEN
+            case PyGameInterface.menu_response_load:
+                # Not yet implemented
+                print("Menu: Loading? Not Yet Implemented")
+                pass
+            case PyGameInterface.menu_response_quit:
+                return Quit()
+            case _:
+                pass
+
         return None
 
 
@@ -334,10 +372,26 @@ def main_button_factory(interface, action, available, state_flag,
 
 
 def menu_screen_factory(interface) -> PyGameScreen:
-    x = int(interface.win_width / 2) - TILE_SIZE
-    y = int(interface.win_height / 2) + TILE_SIZE
+    response_list = [MENU_RESPONSE_PLAY, MENU_RESPONSE_LOAD, MENU_RESPONSE_QUIT]
+    image_list = [MENU_BUTTON_PLAY, MENU_BUTTON_LOAD, MENU_BUTTON_QUIT]
+
+    # Alignment has to fit within tiles
+    x = (int(interface.win_width / (2 * TILE_SIZE)) - 1) * TILE_SIZE
+    y = (int(interface.win_height / (2 * TILE_SIZE)) - (len(image_list) - 1)) * TILE_SIZE
 
     menu = PyGameScreen(interface.window)
+
+    for res, image in zip(response_list, image_list):
+        menu.add_element(PyGameImageScreenElement(interface.window, x, y, image=image))
+
+        # Add the button to the screen inventory with Tile coords; other it is inactive
+        tile_x, tile_y = map_pixel_to_tile_coord((x, y))
+
+        # The buttons are two tiles wide, so add two indices
+        interface.screen_inventory[(tile_x, tile_y)] = res
+        interface.screen_inventory[(tile_x + 1, tile_y)] = res
+
+        y += TILE_SIZE
 
     return menu
 

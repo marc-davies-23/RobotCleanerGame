@@ -40,7 +40,16 @@ TITLE_STRING = "RobotCleanerGame v.0.0.a"
 FEEDBACK_TEXT_BOX_HEIGHT = 20
 WIN_WIDTH = TILE_SIZE * 12
 WIN_HEIGHT = TILE_SIZE * 11 + FEEDBACK_TEXT_BOX_HEIGHT  # 20 extra pixels for feedback text
+
 WIN_CAPTION = "RobotCleanerGame"
+
+MENU_BUTTON_LOAD = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_LOAD.png")
+MENU_BUTTON_PLAY = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_PLAY.png")
+MENU_BUTTON_QUIT = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_QUIT.png")
+
+MENU_RESPONSE_LOAD = "load"
+MENU_RESPONSE_PLAY = "play"
+MENU_RESPONSE_QUIT = "quit"
 
 BUT_DROP_PRESSED = pygame.image.load(PATH_TOKENS_64 + "B_DROP_PRESSED.png")
 BUT_DROP_UNPRESS = pygame.image.load(PATH_TOKENS_64 + "B_DROP_UNPRESSED.png")

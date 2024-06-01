@@ -8,6 +8,12 @@
 DEFAULT_SIZE_X = 3
 DEFAULT_SIZE_Y = 3
 
+# Empty_tile
+EMPTY_TILE = "."
+
+# Robot max actions
+MAX_CARRY = 3
+MAX_SWEEP = 1
 
 # Moves along the x/y axes
 MOVE_LIST = [(1, 0), (-1, 0), (0, 1), (0, -1)]

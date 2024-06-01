@@ -5,13 +5,12 @@
 """
 from Constants import *
 
-EMPTY_TILE = "."
-
 
 class Tile:
     """
         A single tile (or square) on the grid
     """
+
     def __init__(self) -> None:
         """
          Tiles start off empty

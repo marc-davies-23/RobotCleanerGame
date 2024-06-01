@@ -11,9 +11,7 @@
     .is_stack_empty(): checks whether robot's stack is empty or not
 
 """
-
-MAX_CARRY = 3
-MAX_SWEEP = 1
+from Constants import MAX_CARRY, MAX_SWEEP
 
 
 class Robot:
