@@ -1,9 +1,9 @@
 """
     Constants & functionality for PyGame interface
 """
+import Constants as Co
+from Version import VERSION_STRING
 import pygame
-import Actions as Act
-from Constants import *
 
 BUTTON_WIDTH = 128
 
@@ -36,8 +36,6 @@ PATH_TOKENS_64 = "../GameFiles/Assets/Images/Tokens_Play/"
 TILE_IMG = pygame.image.load(PATH_TOKENS_64 + FILE_TILE)
 TILE_SIZE = 64
 
-TITLE_STRING = "RobotCleanerGame v.0.0.a"
-
 FEEDBACK_TEXT_BOX_HEIGHT = 20
 WIN_WIDTH = TILE_SIZE * 12
 WIN_HEIGHT = TILE_SIZE * 11 + FEEDBACK_TEXT_BOX_HEIGHT  # 20 extra pixels for feedback text
@@ -65,10 +63,6 @@ BUT_SWEEP_PRESSED = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_PRESSED.png")
 BUT_SWEEP_UNPRESS = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_UNPRESSED.png")
 BUT_UNAVAILABLE = pygame.image.load(PATH_TOKENS_64 + "BUTTON_UNAVAILABLE.png")
 
-STATE_FLAG_MOVE_PRESSED = Act.Move.__name__
-STATE_FLAG_DROP_PRESSED = Act.Drop.__name__
-STATE_FLAG_PICK_PRESSED = Act.PickUp.__name__
-STATE_FLAG_SWEEP_PRESSED = Act.Sweep.__name__
 
 PRESSED_BUTTON = "pres_but"
 
@@ -99,7 +93,7 @@ SCORING = {
 }
 
 HELP_TOKEN_ADDITIONAL_TEXT: dict[str, str] = {
-    ROBOT_TOKEN: "The robot can carry up to three items, and sweep mess.",
+    Co.ROBOT_TOKEN: "The robot can carry up to three items, and sweep mess.",
     "r": "Can be carried by the robot and put into the correct bin(s).",
     "g": "Can be carried by the robot and put into the correct bin(s).",
     "b": "Can be carried by the robot and put into the correct bin(s).",

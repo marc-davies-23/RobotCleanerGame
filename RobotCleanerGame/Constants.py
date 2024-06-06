@@ -1,6 +1,6 @@
 """
 
-    Store all constants here
+    Store constants here
 
 """
 

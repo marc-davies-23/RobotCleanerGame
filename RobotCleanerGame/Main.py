@@ -1,4 +1,4 @@
-from PyGameInterface import *
+from PyGameInterface import PyGameInterface
 
 if __name__ == "__main__":
 

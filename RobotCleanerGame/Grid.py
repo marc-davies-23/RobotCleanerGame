@@ -3,7 +3,8 @@
     Defines the classes for grid & tiles on which the game is played
 
 """
-from Constants import *
+import Constants as Co
+
 
 class Tile:
     """
@@ -14,7 +15,7 @@ class Tile:
         """
          Tiles start off empty
         """
-        self.__content = EMPTY_TILE
+        self.__content = Co.EMPTY_TILE
 
     def __str__(self) -> str:
         return self.__content
@@ -28,7 +29,7 @@ class Tile:
 
         :return: True/False that the Tile holds a bin.
         """
-        return self.__content in SET_OF_BINS
+        return self.__content in Co.SET_OF_BINS
 
     def is_empty(self) -> bool:
         """
@@ -36,7 +37,7 @@ class Tile:
 
         :return: True/False that the Tile is empty.
         """
-        return self.__content == EMPTY_TILE
+        return self.__content == Co.EMPTY_TILE
 
     def is_item(self) -> bool:
         """
@@ -44,7 +45,7 @@ class Tile:
 
         :return: True/False that the Tile holds an item.
         """
-        return self.__content in SET_OF_ITEMS
+        return self.__content in Co.SET_OF_ITEMS
 
     def is_mess(self) -> bool:
         """
@@ -52,7 +53,7 @@ class Tile:
 
         :return: True/False that the Tile holds a mess.
         """
-        return self.__content in SET_OF_MESS
+        return self.__content in Co.SET_OF_MESS
 
     def get_content(self) -> str:
         """
@@ -77,11 +78,11 @@ class Tile:
         """
         Set tile to Empty Tile
         """
-        self.__content = EMPTY_TILE
+        self.__content = Co.EMPTY_TILE
 
 
 class Grid:
-    def __init__(self, x: int = DEFAULT_SIZE_X, y: int = DEFAULT_SIZE_Y) -> None:
+    def __init__(self, x: int = Co.DEFAULT_SIZE_X, y: int = Co.DEFAULT_SIZE_Y) -> None:
         self.grid = []
         self.size_x = x
         self.size_y = y
@@ -118,7 +119,7 @@ class Grid:
         """
         adjacent_coordinates: [(int, int)] = []
 
-        for move in MOVE_LIST:
+        for move in Co.MOVE_LIST:
             x = from_cds[0] + move[0]
             if x < 0 or x >= self.size_x:
                 # If negative or too big, not a valid coordinate

@@ -3,15 +3,15 @@
     This Interface accepts a file instead of user input: for automation and test scripts
 
 """
-import Actions as Act
-from BuildGameFromFile import *
-import Interface as Int
+import Actions as Ac
+from BuildGameFromFile import build_game_from_file
+import Interface as In
 
 
-class InterfaceFromFile(Int.Interface):
+class InterfaceFromFile(In.Interface):
     def __init__(self, game, file_path) -> None:
         super().__init__(game)
-        self.__actionList: [Act.Action] = []
+        self.__actionList: [Ac.Action] = []
         with open(file_path, "r") as file:
             for line in file:
                 line = line.replace("\r", "").replace("\n", "")  # Strip out line breaks
@@ -35,13 +35,13 @@ class InterfaceFromFile(Int.Interface):
         cds = input_string.replace(")", "").split(",")
         return int(cds[0]), int(cds[1])
 
-    def listen_for_action(self) -> Act.Action:
+    def listen_for_action(self) -> Ac.Action:
         # Simply return the front item from the action list; if the list is empty, print warning and Quit
         try:
             return self.__actionList.pop(0)
         except IndexError:
             print("Warning: end of Action list from file; Quitting")
-            return Act.Quit(self)
+            return Ac.Quit(self)
 
 
 if __name__ == "__main__":

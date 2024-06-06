@@ -7,10 +7,10 @@
 
 """
 
-import Actions as Act
-from Constants import *
-import Grid as Grd
-import Robot as Rbt
+import Actions as Ac
+import Constants as Co
+import Grid as Gr
+import Robot as Rb
 
 
 class Game:
@@ -22,7 +22,7 @@ class Game:
         History will be useful for retracing games; a necessity for advanced functions, e.g. ML
     """
 
-    def __init__(self, size_x: int = DEFAULT_SIZE_X, size_y: int = DEFAULT_SIZE_Y,
+    def __init__(self, size_x: int = Co.DEFAULT_SIZE_X, size_y: int = Co.DEFAULT_SIZE_Y,
                  robot_start: (int, int | None) = None, interface=None, history=None) -> None:
         """
         :param size_x: Horizontal size of Grid
@@ -52,10 +52,10 @@ class Game:
         :param size_y: Vertical size of Grid
         :param robot_start: Robot's starting coordinates
         """
-        self.grid = Grd.Grid(size_x, size_y)
-        self.robot = Rbt.Robot(start=robot_start)
+        self.grid = Gr.Grid(size_x, size_y)
+        self.robot = Rb.Robot(start=robot_start)
 
-        self.grid.set_tile(self.robot.coords, ROBOT_TOKEN)
+        self.grid.set_tile(self.robot.coords, Co.ROBOT_TOKEN)
 
     def add_grid_token(self, coords: (int, int), token_symbol: str) -> None:
         """
@@ -64,7 +64,7 @@ class Game:
         :param coords: Coordinates of the Grid where a token should be placed.
         :param token_symbol: Token character symbol; see Constants.py
         """
-        if not (token_symbol in SET_OF_ITEMS | SET_OF_BINS | SET_OF_MESS):
+        if not (token_symbol in Co.SET_OF_ITEMS | Co.SET_OF_BINS | Co.SET_OF_MESS):
             # Only Items, Bins, and Messes can be placed for now
             raise ValueError(f"Game.add_grid_token: token_symbol not valid")
 
@@ -74,7 +74,7 @@ class Game:
 
         self.grid.set_tile(coords, token_symbol)
 
-    def get_possible_actions(self) -> [Act.Action]:
+    def get_possible_actions(self) -> [Ac.Action]:
         """
         This method determines what possible Actions the Robot may take given the current state of the Grid
 
@@ -88,22 +88,22 @@ class Game:
 
             if tile.is_empty():
                 # Can move or drop into an empty co-ord
-                actions.append(Act.Move(self.interface, coord))
+                actions.append(Ac.Move(self.interface, coord))
                 if not self.robot.is_stack_empty():
-                    actions.append(Act.Drop(self.interface, coord))
+                    actions.append(Ac.Drop(self.interface, coord))
             elif tile.is_bin():
                 # Can -- potentially -- drop an item into a bin
                 if not self.robot.is_stack_empty():
-                    actions.append(Act.Drop(self.interface, coord))
+                    actions.append(Ac.Drop(self.interface, coord))
                 else:
                     # Do nothing: logically necessary
                     pass
             elif tile.is_item():
                 # Can pick up an item
-                actions.append(Act.PickUp(self.interface, coord))
+                actions.append(Ac.PickUp(self.interface, coord))
             elif tile.is_mess():
                 # Can sweep a mess
-                actions.append(Act.Sweep(self.interface, coord))
+                actions.append(Ac.Sweep(self.interface, coord))
             else:
                 # We should never get here
                 raise NotImplementedError("Game.get_possible_actions: impossible state")
@@ -111,7 +111,7 @@ class Game:
         return actions
 
     @staticmethod
-    def is_action_type_in_actions(action_name: str, actions: [Act.Action]) -> bool:
+    def is_action_type_in_actions(action_name: str, actions: [Ac.Action]) -> bool:
         # Not the most efficient of algorithms but there shouldn't be too many actions
         for a in actions:
             if a.__class__.__name__ == action_name:
@@ -120,7 +120,7 @@ class Game:
         return False
 
     @staticmethod
-    def order_actions_by_coords(actions: [Act.Action]) -> dict[(int, int): set[Act.Action]]:
+    def order_actions_by_coords(actions: [Ac.Action]) -> dict[(int, int): set[Ac.Action]]:
         ordered_actions = {}
         for a in actions:
             if a.coords in ordered_actions:
@@ -145,7 +145,7 @@ class Game:
         # Now check the grid; this is slower
         for j in self.grid.grid:
             for i in j:
-                if not (i.get_content() in {EMPTY_TILE, ROBOT_TOKEN} | SET_OF_BINS):
+                if not (i.get_content() in {Co.EMPTY_TILE, Co.ROBOT_TOKEN} | Co.SET_OF_BINS):
                     return False
 
         # If we get here then the grid is cleared

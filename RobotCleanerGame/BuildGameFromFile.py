@@ -4,7 +4,7 @@
 
 """
 import Game as Gm
-import Interface as Int
+import Interface as In
 
 FILE_NAME = "game.rcgg"
 
@@ -25,7 +25,7 @@ def read_file_to_buffer(folder_path: str) -> [str]:
     return buffer
 
 
-def build_game_from_buffer(buffer: [str]) -> Gm.Game:
+def build_game_from_buffer(buffer: [str], interface: (In.Interface | None) = None) -> Gm.Game:
     """
     Breaks up the buffer into actionable parts.
 
@@ -38,6 +38,7 @@ def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     where T is a token type, and x, y are its coords.
 
     :param buffer: Input buffer (list of strings)
+    :param interface: Provided interface, if any
     :return: RobotCleanerGame.Game object
     """
     line1 = buffer[0].split(",")
@@ -45,27 +46,31 @@ def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     if len(line1) != 4:
         raise IOError("build_game_from_buffer: first line of file translate to four values.")
 
-    g = Gm.Game(int(line1[0]), int(line1[1]), robot_start=(int(line1[2]), int(line1[3])))
+    game = Gm.Game(int(line1[0]), int(line1[1]), robot_start=(int(line1[2]), int(line1[3])))
 
     for line in buffer[1:]:
         coords = line[1:].replace("(", "").replace(")", "").split(",")
 
-        g.add_grid_token((int(coords[0]), int(coords[1])), line[0])
+        game.add_grid_token((int(coords[0]), int(coords[1])), line[0])
 
-    return g
+    game.interface = interface
+
+    return game
 
 
-def build_game_from_file(file_path: str) -> Gm.Game:
+def build_game_from_file(folder_path: str, interface: (In.Interface | None) = None) -> Gm.Game:
     """
-    Combines functions to build a game from a file path reference.
-    :param file_path: File path string
-    :return: RobotCleanerGame.Game object
+    Combine functionality to build a game from static file as of folder path
+
+    :param folder_path: Folder path
+    :param interface:  Provided interface, if any
+    :return: Game object
     """
-    return build_game_from_buffer(read_file_to_buffer(file_path))
+    return build_game_from_buffer(read_file_to_buffer(folder_path), interface)
 
 
 if __name__ == "__main__":
     g = build_game_from_file("../GameFiles/SetPieces/Game1/")
-    g.interface = Int.Interface(g)
+    g.interface = In.Interface(g)
 
     g.interface.start()

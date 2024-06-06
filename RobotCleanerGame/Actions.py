@@ -7,8 +7,8 @@
     The approach of having a separate class for every action may be a little over-engineered but the complexity of
     actions could increase with future functionality; thus the concept is hopefully future-proof.
 """
-from Constants import *
-import Interface as Int
+import Constants as Co
+import PyGameConstFuncs as PCo
 
 
 class Action:
@@ -17,7 +17,19 @@ class Action:
         as necessary.
     """
 
-    def __init__(self, interface: Int.Interface):
+    def __init__(self, interface):
+        self.interface = interface
+
+    def execute(self) -> (str | None):  # String is feedback message
+        pass
+
+
+class PyGameAction:
+    """
+        Action for executing on more dynamic PyGame Interface
+    """
+
+    def __init__(self, interface):
         self.interface = interface
 
     def execute(self) -> (str | None):  # String is feedback message
@@ -29,7 +41,7 @@ class ActionWithCoords(Action):
         Second abstract class; this is an action with coords
     """
 
-    def __init__(self, interface: Int.Interface, coords: (int, int)) -> None:
+    def __init__(self, interface, coords: (int, int)) -> None:
         """
         :param coords: Co-ordinates tuple of form (x, y)
         """
@@ -50,7 +62,7 @@ class Drop(ActionWithCoords):
         """
         # First, pop the item; if we find nothing, exit
         if not (item := self.interface.game.robot.drop()):
-            return "Drop failed!"
+            return "Nothing to drop!"
 
         # Can drop into empty tiles or bins; bins are more complicated.
         tile = self.interface.game.grid.get_tile(self.coords)
@@ -61,20 +73,23 @@ class Drop(ActionWithCoords):
             return None  # No feedback message
 
         # If we get to here we're dealing with bin tiles; bin logic applies
-        if tile.get_content() in ITEMS_TO_BIN_MAP[item]:
+        if tile.get_content() in Co.ITEMS_TO_BIN_MAP[item]:
             # Accepted bin; we don't need to set the item here, it is "destroyed"
             return None  # No feedback message
         else:
             # The robot can't drop the item otherwise so the robot has to pick it up again
             self.interface.game.robot.pickup(item)
-            return None  # No feedback message
+            return "Wrong bin, drop failed!"  # No feedback message
 
 
-class Menu(Action):
+class GoToMenu(PyGameAction):
     """
         Action to tell the game to load the menu
     """
-    pass
+
+    def execute(self) -> (str | None):
+        self.interface.state[PCo.CURRENT_SCREEN] = PCo.MENU_SCREEN
+        return None
 
 
 class Move(ActionWithCoords):
@@ -96,7 +111,7 @@ class Move(ActionWithCoords):
         self.interface.game.grid.get_tile(self.interface.game.robot.coords).clear()
 
         # Set the new coordinates
-        self.interface.game.grid.set_tile(self.coords, ROBOT_TOKEN)
+        self.interface.game.grid.set_tile(self.coords, Co.ROBOT_TOKEN)
         self.interface.game.robot.coords = self.coords
 
 
@@ -126,22 +141,24 @@ class Quit(Action):
     """
 
     def execute(self) -> (str | None):
-        return QUIT_MESSAGE
+        return Co.QUIT_MESSAGE
 
 
 class Refresh(Action):
     """
         Action to refresh display of game state
     """
+
     def execute(self) -> (str | None):
         self.interface.display_state()
-        return REFRESH_MESSAGE
+        return Co.REFRESH_MESSAGE
 
 
 class Sweep(ActionWithCoords):
     """
         Action to Sweep something from board
     """
+
     def execute(self) -> (str | None):
         tile = self.interface.game.grid.get_tile(self.coords)
 

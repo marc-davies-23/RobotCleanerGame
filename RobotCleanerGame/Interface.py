@@ -4,7 +4,7 @@
 
 """
 
-import Actions as Act
+import Actions as Ac
 from Constants import QUIT_MESSAGE
 import string
 
@@ -45,13 +45,13 @@ class Interface:
 
             print(f"{disp_count} : ", end="")
             match act.__class__.__name__:
-                case Act.Drop.__name__:
+                case Ac.Drop.__name__:
                     print(f"drop to {act.coords}")
-                case Act.Move.__name__:
+                case Ac.Move.__name__:
                     print(f"move to {act.coords}")
-                case Act.PickUp.__name__:
+                case Ac.PickUp.__name__:
                     print(f"pick-up from {act.coords}")
-                case Act.Sweep.__name__:
+                case Ac.Sweep.__name__:
                     print(f"sweep {act.coords}")
                 case _:
                     raise ValueError(f"Interface.action_list_feedback: {act.__class__.__name__} not matched")
@@ -60,11 +60,11 @@ class Interface:
 
         # Refresh command
         print(f"R : Refresh")
-        lookup["r"] = Act.Refresh(self)
+        lookup["r"] = Ac.Refresh(self)
 
         # Quit command
         print(f"Q : Quit")
-        lookup["q"] = Act.Quit(self)
+        lookup["q"] = Ac.Quit(self)
 
         selected = request_input("\nSelect action: ", validation_values=list(lookup.keys()))
 
