@@ -4,6 +4,9 @@
 
 """
 
+QUIT_MESSAGE = "Quitting..."
+REFRESH_MESSAGE = "Refreshing"
+
 # Default x/y dimensions
 DEFAULT_SIZE_X = 3
 DEFAULT_SIZE_Y = 3

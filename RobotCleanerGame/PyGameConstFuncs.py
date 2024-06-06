@@ -2,7 +2,8 @@
     Constants & functionality for PyGame interface
 """
 import pygame
-from Game import *
+import Actions as Act
+from Constants import *
 
 BUTTON_WIDTH = 128
 
@@ -43,10 +44,13 @@ WIN_HEIGHT = TILE_SIZE * 11 + FEEDBACK_TEXT_BOX_HEIGHT  # 20 extra pixels for fe
 
 WIN_CAPTION = "RobotCleanerGame"
 
+MENU_BUTTON_HELP = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_HELP.png")
 MENU_BUTTON_LOAD = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_LOAD.png")
+MENU_BUTTON_MENU = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_MENU.png")
 MENU_BUTTON_PLAY = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_PLAY.png")
 MENU_BUTTON_QUIT = pygame.image.load(PATH_TOKENS_64 + "MENU_BUTTON_QUIT.png")
 
+MENU_RESPONSE_HELP = "help"
 MENU_RESPONSE_LOAD = "load"
 MENU_RESPONSE_PLAY = "play"
 MENU_RESPONSE_QUIT = "quit"
@@ -61,10 +65,10 @@ BUT_SWEEP_PRESSED = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_PRESSED.png")
 BUT_SWEEP_UNPRESS = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_UNPRESSED.png")
 BUT_UNAVAILABLE = pygame.image.load(PATH_TOKENS_64 + "BUTTON_UNAVAILABLE.png")
 
-STATE_FLAG_MOVE_PRESSED = Move.__name__
-STATE_FLAG_DROP_PRESSED = Drop.__name__
-STATE_FLAG_PICK_PRESSED = PickUp.__name__
-STATE_FLAG_SWEP_PRESSED = Sweep.__name__
+STATE_FLAG_MOVE_PRESSED = Act.Move.__name__
+STATE_FLAG_DROP_PRESSED = Act.Drop.__name__
+STATE_FLAG_PICK_PRESSED = Act.PickUp.__name__
+STATE_FLAG_SWEEP_PRESSED = Act.Sweep.__name__
 
 PRESSED_BUTTON = "pres_but"
 
@@ -73,6 +77,7 @@ PREVIOUS_SCREEN = "prev_scr"
 
 MAIN_SCREEN = "main"
 MENU_SCREEN = "menu"
+LOAD_SCREEN = "load"
 HELP_SCREEN = "help"
 
 FEEDBACK_MSG_PRESS_BUTTON = "Press a button to choose an action to perform."
@@ -82,6 +87,10 @@ FEEDBACK_MSG_WRONG_TILE_FOR_ACTION = "Action can't be done here."
 FEEDBACK_MSG_GRID_CLEARED = "All cleared!"
 FEEDBACK_MSG_PRESS_H_FOR_HELP = "Press H for Help."
 FEEDBACK_MSG_PRESS_B_TO_GO_BACK = "Press B to go back."
+FEEDBACK_MSG_SELECT_GAME_TO_LOAD = "Select a game to load."
+
+TUTORIALS = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T1_INCOMPLETE.png")]
+GAMES = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_1_INCOMPLETE.png")]
 
 SCORING = {
     "full": 10,

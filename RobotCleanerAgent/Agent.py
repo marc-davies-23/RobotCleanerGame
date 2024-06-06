@@ -4,4 +4,6 @@
 
 
 class Agent:
-    pass
+    def __init__(self, interface):
+        # Point to the controlling interface
+        self.interface = interface

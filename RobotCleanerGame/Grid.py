@@ -5,7 +5,6 @@
 """
 from Constants import *
 
-
 class Tile:
     """
         A single tile (or square) on the grid
@@ -86,11 +85,11 @@ class Grid:
         self.grid = []
         self.size_x = x
         self.size_y = y
-        for i in range(x):
-            col = []
-            for j in range(y):
-                col.append(Tile())
-            self.grid.append(col)
+        for j in range(y):
+            row = []
+            for i in range(x):
+                row.append(Tile())
+            self.grid.append(row)
 
     def __str__(self) -> str:
         out = ""

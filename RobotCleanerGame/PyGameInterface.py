@@ -1,8 +1,10 @@
 """
     Interface incorporating PyGame functionality
 """
-
-from Interface import Interface
+import Actions as Act
+import BuildGameFromFile as Build
+import Game as Gm
+import Interface as Int
 from PyGameConstFuncs import *
 
 
@@ -10,12 +12,13 @@ def map_pixel_to_tile_coord(pixel_coords: (int, int)) -> (int, int):
     return int(pixel_coords[0] / TILE_SIZE), int(pixel_coords[1] / TILE_SIZE)
 
 
-class PyGameInterface(Interface):
+class PyGameInterface(Int.Interface):
+    menu_response_help = MENU_RESPONSE_HELP
     menu_response_play = MENU_RESPONSE_PLAY
     menu_response_load = MENU_RESPONSE_LOAD
     menu_response_quit = MENU_RESPONSE_QUIT
 
-    def __init__(self, game: Game, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
+    def __init__(self, game: (Gm.Game | None) = None, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
         super().__init__(game)
         self.state = {CURRENT_SCREEN: MENU_SCREEN,
                       PRESSED_BUTTON: None}
@@ -43,8 +46,12 @@ class PyGameInterface(Interface):
         return self.animation_beat == 0
 
     def draw_help_screen(self):
-        help_screen = help_screen_factory(self.window, FEEDBACK_MSG_PRESS_B_TO_GO_BACK)
+        help_screen = help_screen_factory(self, FEEDBACK_MSG_PRESS_B_TO_GO_BACK)
         help_screen.draw()
+
+    def draw_load_screen(self):
+        load_screen = load_screen_factory(self, FEEDBACK_MSG_SELECT_GAME_TO_LOAD)
+        load_screen.draw()
 
     def draw_main_screen(self):
         # Default animation beats are hit once every ten loops
@@ -82,11 +89,11 @@ class PyGameInterface(Interface):
 
         getattr(self, "draw_" + screen + "_screen")()
 
-    def listen_for_action(self) -> (Action | None):
+    def listen_for_action(self) -> (Act.Action | None):
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
-                    return Quit()
+                    return Act.Quit(self)
                 case pygame.MOUSEBUTTONUP:
                     return self.process_mouse_click()
                 case _:
@@ -94,31 +101,38 @@ class PyGameInterface(Interface):
 
         # Check for key press
         key = pygame.key.get_pressed()
-        if key[pygame.K_h]:
-            if self.state[CURRENT_SCREEN] != HELP_SCREEN:  # Prevents double-firing
-                self.state[PREVIOUS_SCREEN] = self.state[CURRENT_SCREEN]
-                self.state[CURRENT_SCREEN] = HELP_SCREEN
-        if key[pygame.K_b]:
-            current = self.state[CURRENT_SCREEN]
-            previous = self.state[PREVIOUS_SCREEN]
-            if current == HELP_SCREEN and previous != HELP_SCREEN:  # Can only go back from Help Screen
-                self.state[PREVIOUS_SCREEN] = current
-                self.state[CURRENT_SCREEN] = previous
-                self.feedback_msg = FEEDBACK_MSG_PRESS_H_FOR_HELP
+        if key[pygame.K_h] and self.state[CURRENT_SCREEN] != HELP_SCREEN:  # Prevents double-firing
+            self.state[PREVIOUS_SCREEN] = self.state[CURRENT_SCREEN]
+            self.state[CURRENT_SCREEN] = HELP_SCREEN
+        if key[pygame.K_b] and self.state[CURRENT_SCREEN] == HELP_SCREEN:
+            try:
+                previous = self.state[PREVIOUS_SCREEN]
+            except KeyError:
+                previous = MENU_SCREEN  # If there's no previous screen, go back to menu
+
+            if previous == HELP_SCREEN:  # Can't go back to Help Screen
+                previous = MENU_SCREEN
+
+            self.state[CURRENT_SCREEN] = previous
+            self.feedback_msg = FEEDBACK_MSG_PRESS_H_FOR_HELP
 
         return None
 
-    def process_mouse_click(self) -> (Action | None):
+    def process_mouse_click(self) -> (Act.Action | None):
 
         if self.state[CURRENT_SCREEN] == MAIN_SCREEN:
             return self.process_mouse_click_main()
         elif self.state[CURRENT_SCREEN] == MENU_SCREEN:
             return self.process_mouse_click_menu()
+        elif self.state[CURRENT_SCREEN] == LOAD_SCREEN:
+            return self.process_mouse_click_load()
+        elif self.state[CURRENT_SCREEN] == HELP_SCREEN:
+            return self.process_mouse_click_help()
         else:
             # Last catch all
             return None
 
-    def process_mouse_click_main(self) -> (Action | None):
+    def process_mouse_click_main(self) -> (Act.Action | None):
         x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
 
         try:
@@ -128,12 +142,16 @@ class PyGameInterface(Interface):
             # Nothing in inventory, reset
             self.state[PRESSED_BUTTON] = None
             self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
-            return None
+            return
+
+        if screen_item.__class__.__name__ == Act.Menu.__name__:
+            self.state[CURRENT_SCREEN] = MENU_SCREEN
+            return
 
         try:
             # Try to set a pressed button state
             if screen_item.__name__ in {STATE_FLAG_MOVE_PRESSED, STATE_FLAG_DROP_PRESSED,
-                                        STATE_FLAG_PICK_PRESSED, STATE_FLAG_SWEP_PRESSED}:
+                                        STATE_FLAG_PICK_PRESSED, STATE_FLAG_SWEEP_PRESSED}:
                 self.state[PRESSED_BUTTON] = screen_item.__name__
                 self.feedback_msg = FEEDBACK_MSG_CLICK_GRID
 
@@ -144,7 +162,7 @@ class PyGameInterface(Interface):
         # Catch no button pressed and stop here
         if self.state[PRESSED_BUTTON] is None:
             self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
-            return None
+            return
 
         try:
             for a in screen_item:
@@ -161,10 +179,37 @@ class PyGameInterface(Interface):
             # Continue
             pass
 
-        # Last catch all
-        return None
+    def process_mouse_click_help(self) -> None:
+        x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
 
-    def process_mouse_click_menu(self) -> (Action | None):
+        try:
+            screen_item = self.screen_inventory[(x, y)]
+        except KeyError:
+            return
+
+        if screen_item.__class__.__name__ == Act.Menu.__name__:
+            self.state[CURRENT_SCREEN] = MENU_SCREEN
+            return
+
+    def process_mouse_click_load(self) -> None:
+        x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
+
+        try:
+            screen_item = self.screen_inventory[(x, y)]
+        except KeyError:
+            return
+
+        # If we get a string here, try to load that game
+        if isinstance(screen_item, str):
+            self.game = Build.build_game_from_file("../GameFiles/SetPieces/" + screen_item + "/")
+            self.game.interface = self  # set interface as game object has been made
+            self.state[CURRENT_SCREEN] = MAIN_SCREEN
+
+        if screen_item.__class__.__name__ == Act.Menu.__name__:
+            self.state[CURRENT_SCREEN] = MENU_SCREEN
+            return
+
+    def process_mouse_click_menu(self) -> (Act.Action | None):
         x, y = map_pixel_to_tile_coord(pygame.mouse.get_pos())
 
         try:
@@ -174,15 +219,19 @@ class PyGameInterface(Interface):
             return None
 
         match response:
+            case PyGameInterface.menu_response_help:
+                self.state[CURRENT_SCREEN] = HELP_SCREEN
             case PyGameInterface.menu_response_play:
-                # Change current screen to main
-                self.state[CURRENT_SCREEN] = MAIN_SCREEN
+                if self.game:
+                    # Change current screen to main
+                    self.state[CURRENT_SCREEN] = MAIN_SCREEN
+                else:
+                    # Make them pick which game to play
+                    self.state[CURRENT_SCREEN] = LOAD_SCREEN
             case PyGameInterface.menu_response_load:
-                # Not yet implemented
-                print("Menu: Loading? Not Yet Implemented")
-                pass
+                self.state[CURRENT_SCREEN] = LOAD_SCREEN
             case PyGameInterface.menu_response_quit:
-                return Quit()
+                return Act.Quit(self)
             case _:
                 pass
 
@@ -288,24 +337,28 @@ def main_screen_factory(interface, actions) -> PyGameScreen:
     x = 0
     y = interface.win_height - TILE_SIZE - FEEDBACK_TEXT_BOX_HEIGHT
 
-    avail = Game.is_action_type_in_actions(Move.__name__, actions)
-    main.add_element(main_button_factory(interface, Move, avail, STATE_FLAG_MOVE_PRESSED,
+    avail = Gm.Game.is_action_type_in_actions(Act.Move.__name__, actions)
+    main.add_element(main_button_factory(interface, Act.Move, avail, STATE_FLAG_MOVE_PRESSED,
                                          BUT_MOVE_PRESSED, BUT_MOVE_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
-    avail = Game.is_action_type_in_actions(PickUp.__name__, actions)
-    main.add_element(main_button_factory(interface, PickUp, avail, STATE_FLAG_PICK_PRESSED,
+    avail = Gm.Game.is_action_type_in_actions(Act.PickUp.__name__, actions)
+    main.add_element(main_button_factory(interface, Act.PickUp, avail, STATE_FLAG_PICK_PRESSED,
                                          BUT_PICK_PRESSED, BUT_PICK_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
-    avail = Game.is_action_type_in_actions(Drop.__name__, actions)
-    main.add_element(main_button_factory(interface, Drop, avail, STATE_FLAG_DROP_PRESSED,
+    avail = Gm.Game.is_action_type_in_actions(Act.Drop.__name__, actions)
+    main.add_element(main_button_factory(interface, Act.Drop, avail, STATE_FLAG_DROP_PRESSED,
                                          BUT_DROP_PRESSED, BUT_DROP_UNPRESS, x, y))
     x += BUTTON_WIDTH
 
-    avail = Game.is_action_type_in_actions(Sweep.__name__, actions)
-    main.add_element(main_button_factory(interface, Sweep, avail, STATE_FLAG_SWEP_PRESSED,
+    avail = Gm.Game.is_action_type_in_actions(Act.Sweep.__name__, actions)
+    main.add_element(main_button_factory(interface, Act.Sweep, avail, STATE_FLAG_SWEEP_PRESSED,
                                          BUT_SWEEP_PRESSED, BUT_SWEEP_UNPRESS, x, y))
+
+    # Move two buttons across
+    x += 2 * BUTTON_WIDTH
+    main.add_element(menu_button_factory(interface, x, y))
 
     # Now draw the robot's stack
     # Draw it one tile to the right of the game grid
@@ -324,7 +377,7 @@ def main_screen_factory(interface, actions) -> PyGameScreen:
         main.add_element(PyGameTokenScreenElement(interface.window, x, y, TOKEN_MAP[item],
                                                   incr=False, static=True))
 
-    ordered_actions = Game.order_actions_by_coords(actions)
+    ordered_actions = Gm.Game.order_actions_by_coords(actions)
 
     # Add game tiles + tokens
     for y in range(0, interface.game.grid.size_y):
@@ -352,6 +405,13 @@ def main_screen_factory(interface, actions) -> PyGameScreen:
     return main
 
 
+def menu_button_factory(interface, x, y):
+    tile_x, tile_y = map_pixel_to_tile_coord((x, y))
+    interface.screen_inventory[tile_x, tile_y] = Act.Menu(interface)
+    interface.screen_inventory[tile_x + 1, tile_y] = Act.Menu(interface)
+    return PyGameImageScreenElement(interface.window, x, y, image=MENU_BUTTON_MENU)
+
+
 def main_button_factory(interface, action, available, state_flag,
                         image_pressed, image_unpressed, x, y) -> PyGameImageScreenElement:
     if not available:
@@ -372,8 +432,8 @@ def main_button_factory(interface, action, available, state_flag,
 
 
 def menu_screen_factory(interface) -> PyGameScreen:
-    response_list = [MENU_RESPONSE_PLAY, MENU_RESPONSE_LOAD, MENU_RESPONSE_QUIT]
-    image_list = [MENU_BUTTON_PLAY, MENU_BUTTON_LOAD, MENU_BUTTON_QUIT]
+    response_list = [MENU_RESPONSE_PLAY, MENU_RESPONSE_HELP, MENU_RESPONSE_LOAD, MENU_RESPONSE_QUIT]
+    image_list = [MENU_BUTTON_PLAY, MENU_BUTTON_HELP, MENU_BUTTON_LOAD, MENU_BUTTON_QUIT]
 
     # Alignment has to fit within tiles
     x = (int(interface.win_width / (2 * TILE_SIZE)) - 1) * TILE_SIZE
@@ -396,9 +456,11 @@ def menu_screen_factory(interface) -> PyGameScreen:
     return menu
 
 
-def help_screen_factory(window, message) -> PyGameScreen:
+def help_screen_factory(interface, message) -> PyGameScreen:
     x = 0
     y = 0
+
+    window = interface.window
 
     help_screen = PyGameScreen(window)
 
@@ -411,9 +473,58 @@ def help_screen_factory(window, message) -> PyGameScreen:
 
         y += TILE_SIZE
 
+    x = 5 * BUTTON_WIDTH
+    y = interface.win_height - TILE_SIZE - FEEDBACK_TEXT_BOX_HEIGHT
+
+    help_screen.add_element(menu_button_factory(interface, x, y))
+
     help_screen.add_element(feedback_box_factory(window, message))
 
     return help_screen
+
+
+def load_screen_factory(interface, message) -> PyGameScreen:
+    x_limit = 4
+
+    x = TILE_SIZE  # Start with a buffer
+    y = TILE_SIZE  # Ditto
+
+    load_screen = PyGameScreen(interface.window)
+
+    for i in range(len(TUTORIALS)):
+        load_screen.add_element(PyGameImageScreenElement(interface.window, x, y, image=TUTORIALS[i]))
+
+        tile_x, tile_y = map_pixel_to_tile_coord((x, y))
+        interface.screen_inventory[(tile_x, tile_y)] = "Tutorial" + str(i + 1)
+
+        if i % x_limit == 0:
+            x = TILE_SIZE
+            y += 2 * TILE_SIZE
+        else:
+            x += 2 * TILE_SIZE
+
+    x = TILE_SIZE  # Start with a buffer
+    y += 2 * TILE_SIZE
+
+    for i in range(len(GAMES)):
+        load_screen.add_element(PyGameImageScreenElement(interface.window, x, y, image=GAMES[i]))
+
+        tile_x, tile_y = map_pixel_to_tile_coord((x, y))
+        interface.screen_inventory[(tile_x, tile_y)] = "Game" + str(i + 1)
+
+        if i % x_limit == 0:
+            x = TILE_SIZE
+        else:
+            x += 2 * TILE_SIZE
+
+    x = 5 * BUTTON_WIDTH
+    y = interface.win_height - TILE_SIZE - FEEDBACK_TEXT_BOX_HEIGHT
+
+    load_screen.add_element(menu_button_factory(interface, x, y))
+
+    load_screen.add_element(feedback_box_factory(interface.window, message))
+
+    return load_screen
 
 
 def feedback_box_factory(window, message) -> PyGameTextScreenElement:

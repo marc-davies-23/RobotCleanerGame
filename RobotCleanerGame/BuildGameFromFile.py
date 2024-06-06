@@ -3,19 +3,21 @@
     A set of functions to build a game from a file
 
 """
-from Game import Game
-from Interface import Interface
+import Game as Gm
+import Interface as Int
+
+FILE_NAME = "game.rcgg"
 
 
-def read_file_to_buffer(file_path: str) -> [str]:
+def read_file_to_buffer(folder_path: str) -> [str]:
     """
     Function to read the input file and turn it into a buffer, stripping carriage returns and line breaks.
 
-    :param file_path: File path in string format
+    :param folder_path: File path in string format
     :return: Buffer as list of strings
     """
     buffer = []
-    with open(file_path, "r") as file:
+    with open(folder_path + FILE_NAME, "r") as file:
         for line in file:
             line = line.replace("\r", "")
             buffer.append(line.replace("\n", ""))  # Strip out line breaks
@@ -23,7 +25,7 @@ def read_file_to_buffer(file_path: str) -> [str]:
     return buffer
 
 
-def build_game_from_buffer(buffer: [str]) -> Game:
+def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     """
     Breaks up the buffer into actionable parts.
 
@@ -43,7 +45,7 @@ def build_game_from_buffer(buffer: [str]) -> Game:
     if len(line1) != 4:
         raise IOError("build_game_from_buffer: first line of file translate to four values.")
 
-    g = Game(int(line1[0]), int(line1[1]), robot_start=(int(line1[2]), int(line1[3])))
+    g = Gm.Game(int(line1[0]), int(line1[1]), robot_start=(int(line1[2]), int(line1[3])))
 
     for line in buffer[1:]:
         coords = line[1:].replace("(", "").replace(")", "").split(",")
@@ -53,7 +55,7 @@ def build_game_from_buffer(buffer: [str]) -> Game:
     return g
 
 
-def build_game_from_file(file_path: str) -> Game:
+def build_game_from_file(file_path: str) -> Gm.Game:
     """
     Combines functions to build a game from a file path reference.
     :param file_path: File path string
@@ -63,9 +65,7 @@ def build_game_from_file(file_path: str) -> Game:
 
 
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Game1/game.rcgg")
-    g.interface = Interface(g)
-    print(g.grid)
-    actions = g.get_possible_actions()
-    print(actions)
-    print(g.order_actions_by_coords(actions))
+    g = build_game_from_file("../GameFiles/SetPieces/Game1/")
+    g.interface = Int.Interface(g)
+
+    g.interface.start()
