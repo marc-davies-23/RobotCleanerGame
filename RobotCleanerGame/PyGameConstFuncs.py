@@ -93,15 +93,17 @@ TUTORIALS = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T1_INCOMPLETE.png")
 GAMES = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_1_INCOMPLETE.png")]
 
 HELP_TOKEN_ADDITIONAL_TEXT: dict[str, str] = {
-    Co.ROBOT_TOKEN: "The robot can carry up to three items, and sweep mess.",
+    Co.ROBOT_TOKEN: "The robot can carry up to three items of garbage and sweep messes.",
     "r": "Can be carried by the robot and put into the correct bin(s).",
     "g": "Can be carried by the robot and put into the correct bin(s).",
     "b": "Can be carried by the robot and put into the correct bin(s).",
-    "R": f"Can accept Food items for {Co.SCORING["full"]} points.",
-    "G": f"Can accept Plastic items for {Co.SCORING["full"]} points.",
-    "B": f"Can accept Glass items {Co.SCORING["full"]} points.",
+    "R": f"Can accept Food garbage for {Co.SCORING["full"]} points.",
+    "G": f"Can accept Plastic garbage for {Co.SCORING["full"]} points.",
+    "B": f"Can accept Glass garbage for {Co.SCORING["full"]} points.",
     "*": f"Can accept all garbage for {Co.SCORING["half"]} points.",
     "m": f"Sweeping a mess gives {Co.SCORING["sweep"]} points.",
 }
 
-HELP_BOTTOM_TEXT = ["Every action including movement costs one point.", "Try to score the maximum possible points!"]
+HELP_BOTTOM_TEXT = ["Your objective is to clear the board.",
+                    "Every action including movement costs one point.",
+                    "Try to score the maximum possible points!"]

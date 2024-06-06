@@ -51,9 +51,9 @@ SCORING = {
 # Tokens short reference & description
 TOKEN_DESCRIPTIONS: dict[str, str] = {
     ROBOT_TOKEN: "Robot",
-    "r": "Food Item",
-    "g": "Plastic Item",
-    "b": "Glass Item",
+    "r": "Food Garbage",
+    "g": "Plastic Garbage",
+    "b": "Glass Garbage",
     "R": "Food Bin",
     "G": "Plastic Bin",
     "B": "Glass Bin",
