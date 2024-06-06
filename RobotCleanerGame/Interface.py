@@ -5,7 +5,6 @@
 """
 
 import Actions as Ac
-from Constants import QUIT_MESSAGE
 import string
 
 
@@ -83,11 +82,10 @@ class Interface:
 
         if action:
             feedback = action.execute()
-            if feedback:
+            if feedback.message:
                 self.give_user_feedback(feedback)
 
-            if feedback == QUIT_MESSAGE:
-                return False
+            return not feedback.quit
 
         # Continue by default
         return True
@@ -99,7 +97,6 @@ class Interface:
         pass
 
     def event_grid_cleared(self) -> None:
-        # This method isn't static as it may be used for more complex functionality via inheritance
         self.give_user_feedback(f"\nGRID CLEARED!\n")
 
     def event_quit(self) -> None:

@@ -45,7 +45,7 @@ class InterfaceFromFile(In.Interface):
 
 
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Game1/game.rcgg")
-    g.interface = InterfaceFromFile(g, "../GameFiles/SetPieces/Game1/solve.rcgs")
+    g = build_game_from_file("../GameFiles/SetPieces/Game_1/game.rcgg")
+    g.interface = InterfaceFromFile(g, "../GameFiles/SetPieces/Game_1/solve.rcgs")
 
     g.interface.start()

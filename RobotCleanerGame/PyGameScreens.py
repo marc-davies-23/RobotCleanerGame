@@ -27,7 +27,7 @@ class PyGameScreenElement:
 
 
 class PyGameTextElement(PyGameScreenElement):
-    def __init__(self, window, x: int, y: int, font, size, text: str,
+    def __init__(self, window, x: int, y: int, text: str, size, font=PCo.FONT_COURIER_NEW,
                  color=PCo.COLOR_WHITE, bold: bool = False, antialias: bool = True):
         super().__init__(window, x, y)
         self.font = font
@@ -118,12 +118,20 @@ class HelpScreen(PyGameScreen):
 
         for key, txt in Co.TOKEN_DESCRIPTIONS.items():
             hlp_scn.add_element(PyGameTokenElement(window, x, y, TOKEN_MAP[key], False, True))
-            hlp_scn.add_element(PyGameTextElement(window, x + PCo.TILE_SIZE, y + 8, PCo.FONT_COURIER_NEW, 24,
-                                                  txt + ": ", bold=True, antialias=True))
-            hlp_scn.add_element(PyGameTextElement(window, x + PCo.TILE_SIZE, y + 40, PCo.FONT_COURIER_NEW, 16,
-                                                  PCo.HELP_TOKEN_ADDITIONAL_TEXT[key], bold=False, antialias=True))
+            hlp_scn.add_element(PyGameTextElement(window, x + PCo.TILE_SIZE, y + 8, txt + ": ", 24,
+                                                  bold=True, antialias=True))
+            hlp_scn.add_element(PyGameTextElement(window, x + PCo.TILE_SIZE, y + 40,
+                                                  PCo.HELP_TOKEN_ADDITIONAL_TEXT[key],
+                                                  16, bold=False, antialias=True))
 
             y += PCo.TILE_SIZE
+
+        y += 20
+
+        for txt in PCo.HELP_BOTTOM_TEXT:
+            hlp_scn.add_element(PyGameTextElement(window, x + 16, y + 8, txt, 16,
+                                                  bold=False, antialias=True))
+            y += 20
 
         x = 5 * PCo.BUTTON_WIDTH
         y = interface.win_height - PCo.TILE_SIZE - PCo.FEEDBACK_TEXT_BOX_HEIGHT
@@ -138,7 +146,7 @@ class HelpScreen(PyGameScreen):
 class LoadScreen(PyGameScreen):
     @staticmethod
     def factory(interface) -> PyGameScreen:
-        x_limit = 4
+        x_limit = 5
         message = PCo.FEEDBACK_MSG_SELECT_GAME_TO_LOAD
 
         x = PCo.TILE_SIZE  # Start with a buffer
@@ -150,9 +158,9 @@ class LoadScreen(PyGameScreen):
             load_scn.add_element(PyGameImageElement(interface.window, x, y, image=PCo.TUTORIALS[i]))
 
             tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
-            load_scn.inventory[(tile_x, tile_y)] = "Tutorial" + str(i + 1)
+            load_scn.inventory[(tile_x, tile_y)] = PCo.TUTORIAL_PREFIX + str(i + 1)
 
-            if i % x_limit == 0:
+            if i + 1 % x_limit == 0:
                 x = PCo.TILE_SIZE
                 y += 2 * PCo.TILE_SIZE
             else:
@@ -165,7 +173,7 @@ class LoadScreen(PyGameScreen):
             load_scn.add_element(PyGameImageElement(interface.window, x, y, image=PCo.GAMES[i]))
 
             tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
-            load_scn.inventory[(tile_x, tile_y)] = "Game" + str(i + 1)
+            load_scn.inventory[(tile_x, tile_y)] = PCo.GAME_PREFIX + str(i + 1)
 
             if i % x_limit == 0:
                 x = PCo.TILE_SIZE
@@ -191,6 +199,7 @@ class LoadScreen(PyGameScreen):
         if isinstance(screen_item, str):
             self.interface.game = Bd.build_game_from_file("../GameFiles/SetPieces/" + screen_item + "/", self.interface)
             self.interface.state[PCo.CURRENT_SCREEN] = PCo.MAIN_SCREEN
+            self.interface.give_user_feedback("Loading " + screen_item.replace("_", " "))
             return
         else:
             # Presume it's an object to be executed and return it
@@ -204,6 +213,8 @@ class MainScreen(PyGameScreen):
         interface.animation_beat = (interface.animation_beat + 1) % 10
 
         main = MainScreen(interface)
+
+        window = interface.window
 
         # Get possible actions
         actions = interface.game.get_possible_actions()
@@ -231,8 +242,14 @@ class MainScreen(PyGameScreen):
         main.add_element(main_button_factory(interface, main, Ac.Sweep, avail, STATE_FLAG_SWEEP_PRESSED,
                                              PCo.BUT_SWEEP_PRESSED, PCo.BUT_SWEEP_UNPRESS, x, y))
 
-        # Move two buttons across
-        x += 2 * PCo.BUTTON_WIDTH
+        # Score
+        x += PCo.BUTTON_WIDTH
+        score = str(interface.game.score)
+        main.add_element(PyGameTextElement(window, x+24, y+8, "Score:", 24, bold=True, antialias=True))
+        main.add_element(PyGameTextElement(window, x+60, y+40, score, 24, bold=False, antialias=True))
+
+        # Menu button
+        x += PCo.BUTTON_WIDTH
         main.add_element(menu_button_factory(interface, main, x, y))
 
         # Now draw the robot's stack
@@ -287,7 +304,7 @@ class MainScreen(PyGameScreen):
         except KeyError:
             # Nothing in inventory, reset
             self.interface.state[PCo.PRESSED_BUTTON] = None
-            self.interface.feedback_msg = PCo.FEEDBACK_MSG_PRESS_BUTTON
+            self.interface.give_user_feedback(PCo.FEEDBACK_MSG_PRESS_BUTTON)
             return
 
         # Catch GoTo here for now...
@@ -299,7 +316,7 @@ class MainScreen(PyGameScreen):
             if screen_item.__name__ in {STATE_FLAG_MOVE_PRESSED, STATE_FLAG_DROP_PRESSED,
                                         STATE_FLAG_PICK_PRESSED, STATE_FLAG_SWEEP_PRESSED}:
                 self.interface.state[PCo.PRESSED_BUTTON] = screen_item.__name__
-                self.interface.feedback_msg = PCo.FEEDBACK_MSG_CLICK_GRID
+                self.interface.give_user_feedback(PCo.FEEDBACK_MSG_CLICK_GRID)
 
         except AttributeError:
             # If not applicable, continue
@@ -307,7 +324,7 @@ class MainScreen(PyGameScreen):
 
             # Catch no button pressed and stop here
         if self.interface.state[PCo.PRESSED_BUTTON] is None:
-            self.interface.feedback_msg = PCo.FEEDBACK_MSG_PRESS_BUTTON
+            self.interface.give_user_feedback(PCo.FEEDBACK_MSG_PRESS_BUTTON)
             return
 
         try:
@@ -315,11 +332,11 @@ class MainScreen(PyGameScreen):
                 if a.__class__.__name__ == self.interface.state[PCo.PRESSED_BUTTON]:
                     # Can reset the Pressed Button state
                     self.interface.state[PCo.PRESSED_BUTTON] = None
-                    self.interface.feedback_msg = PCo.FEEDBACK_MSG_PERFORMED_ACTION
+                    self.interface.give_user_feedback(PCo.FEEDBACK_MSG_PERFORMED_ACTION)
                     return a
 
                 # If we found nothing...
-                self.interface.feedback_msg = PCo.FEEDBACK_MSG_WRONG_TILE_FOR_ACTION
+                self.interface.give_user_feedback(PCo.FEEDBACK_MSG_WRONG_TILE_FOR_ACTION)
 
         except TypeError:
             # Continue
@@ -390,8 +407,8 @@ class TitleScreen(PyGameScreen):
 
         title_screen = TitleScreen(interface, delay=(2 * PCo.DELAY_ONE_SEC))
 
-        title_screen.add_element(PyGameTextElement(window, x, y, PCo.FONT_COURIER_NEW, 32,
-                                                   PCo.VERSION_STRING, bold=True, antialias=True))
+        title_screen.add_element(PyGameTextElement(window, x, y, PCo.VERSION_STRING, 32,
+                                                   bold=True, antialias=True))
         title_screen.add_element(PyGameImageElement(window, int((width / 2) - 128), y + 20,
                                                     img_path=PCo.PATH_TOKENS_BIG + "ROBOT_256x256.png"))
 
@@ -433,8 +450,7 @@ def feedback_box_factory(window, message) -> PyGameTextElement:
     x = 16
     y = PCo.WIN_HEIGHT - PCo.FEEDBACK_TEXT_BOX_HEIGHT + 2
 
-    return PyGameTextElement(window, x, y, PCo.FONT_COURIER_NEW, 16,
-                             message, bold=False, antialias=True)
+    return PyGameTextElement(window, x, y, message, 16, bold=False, antialias=True)
 
 
 """

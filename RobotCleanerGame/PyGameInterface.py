@@ -93,7 +93,7 @@ class PyGameInterface(In.Interface):
                 previous = PCo.MENU_SCREEN
 
             self.state[PCo.CURRENT_SCREEN] = previous
-            self.feedback_msg = PCo.FEEDBACK_MSG_PRESS_H_FOR_HELP
+            self.give_user_feedback(PCo.FEEDBACK_MSG_PRESS_H_FOR_HELP)
 
         return None
 

@@ -83,23 +83,25 @@ FEEDBACK_MSG_PRESS_H_FOR_HELP = "Press H for Help."
 FEEDBACK_MSG_PRESS_B_TO_GO_BACK = "Press B to go back."
 FEEDBACK_MSG_SELECT_GAME_TO_LOAD = "Select a game to load."
 
-TUTORIALS = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T1_INCOMPLETE.png")]
-GAMES = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_1_INCOMPLETE.png")]
+TUTORIAL_PREFIX = "Tutorial_"
+GAME_PREFIX = "Game_"
 
-SCORING = {
-    "full": 10,
-    "half": 5,
-    "sweep": 3,
-}
+TUTORIALS = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T1_INCOMPLETE.png"),
+             pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T2_INCOMPLETE.png"),
+             pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T3_INCOMPLETE.png")]
+
+GAMES = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_1_INCOMPLETE.png")]
 
 HELP_TOKEN_ADDITIONAL_TEXT: dict[str, str] = {
     Co.ROBOT_TOKEN: "The robot can carry up to three items, and sweep mess.",
     "r": "Can be carried by the robot and put into the correct bin(s).",
     "g": "Can be carried by the robot and put into the correct bin(s).",
     "b": "Can be carried by the robot and put into the correct bin(s).",
-    "R": f"Can accept Food items for {SCORING["full"]} points.",
-    "G": f"Can accept Plastic items for {SCORING["full"]} points.",
-    "B": f"Can accept Glass items {SCORING["full"]} points.",
-    "*": f"Can accept all garbage for {SCORING["half"]} points.",
-    "m": f"Sweeping a mess gives {SCORING["sweep"]} points.",
+    "R": f"Can accept Food items for {Co.SCORING["full"]} points.",
+    "G": f"Can accept Plastic items for {Co.SCORING["full"]} points.",
+    "B": f"Can accept Glass items {Co.SCORING["full"]} points.",
+    "*": f"Can accept all garbage for {Co.SCORING["half"]} points.",
+    "m": f"Sweeping a mess gives {Co.SCORING["sweep"]} points.",
 }
+
+HELP_BOTTOM_TEXT = ["Every action including movement costs one point.", "Try to score the maximum possible points!"]

@@ -11,6 +11,12 @@ import Constants as Co
 import PyGameConstFuncs as PCo
 
 
+class Feedback:
+    def __init__(self, message=None, quit_flag=False):
+        self.message = message
+        self.quit = quit_flag
+
+
 class Action:
     """
         The base Action class is essentially an abstract class, and a placeholder for further functionality
@@ -20,8 +26,8 @@ class Action:
     def __init__(self, interface):
         self.interface = interface
 
-    def execute(self) -> (str | None):  # String is feedback message
-        pass
+    def execute(self) -> Feedback:
+        return Feedback()
 
 
 class PyGameAction:
@@ -32,8 +38,8 @@ class PyGameAction:
     def __init__(self, interface):
         self.interface = interface
 
-    def execute(self) -> (str | None):  # String is feedback message
-        pass
+    def execute(self) -> Feedback:
+        return Feedback()
 
 
 class ActionWithCoords(Action):
@@ -54,15 +60,18 @@ class Drop(ActionWithCoords):
         Action for the Robot to drop the top of its stack
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
         """
         Attempt to execute a Drop action.
 
         :return: Feedback message
         """
-        # First, pop the item; if we find nothing, exit
+        # Deduct a point of score
+        self.interface.game.change_score()
+
+        # Pop the item; if we find nothing, exit
         if not (item := self.interface.game.robot.drop()):
-            return "Nothing to drop!"
+            return Feedback("Nothing to drop!")
 
         # Can drop into empty tiles or bins; bins are more complicated.
         tile = self.interface.game.grid.get_tile(self.coords)
@@ -70,16 +79,20 @@ class Drop(ActionWithCoords):
         # Deal with empty tile first, as it's simple
         if tile.is_empty():
             self.interface.game.grid.set_tile(self.coords, item)
-            return None  # No feedback message
+            return Feedback()  # Empty feedback message
 
         # If we get to here we're dealing with bin tiles; bin logic applies
         if tile.get_content() in Co.ITEMS_TO_BIN_MAP[item]:
             # Accepted bin; we don't need to set the item here, it is "destroyed"
-            return None  # No feedback message
+            if tile.get_content() == Co.UNIVERSAL_BIN:
+                self.interface.game.change_score(Co.SCORING["half"])
+            else:
+                self.interface.game.change_score(Co.SCORING["full"])
+            return Feedback()  # Empty feedback message
         else:
             # The robot can't drop the item otherwise so the robot has to pick it up again
             self.interface.game.robot.pickup(item)
-            return "Wrong bin, drop failed!"  # No feedback message
+            return Feedback("Wrong bin, drop failed!")
 
 
 class GoToMenu(PyGameAction):
@@ -87,9 +100,9 @@ class GoToMenu(PyGameAction):
         Action to tell the game to load the menu
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
         self.interface.state[PCo.CURRENT_SCREEN] = PCo.MENU_SCREEN
-        return None
+        return Feedback()
 
 
 class Move(ActionWithCoords):
@@ -97,15 +110,18 @@ class Move(ActionWithCoords):
         Action for the Robot to move to coords
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
         """
         Attempt to execute a Move action.
 
         :return: Feedback message
         """
-        # First, double-check that the destination is empty. Throw an error if not
+        # Deduct a point of score
+        self.interface.game.change_score()
+
+        # Check-check that the destination is empty. Throw an error if not
         if not self.interface.game.grid.get_tile(self.coords).is_empty():
-            return "Destination not empty"
+            return Feedback("Destination not empty")
 
         # Clear the old coordinates
         self.interface.game.grid.get_tile(self.interface.game.robot.coords).clear()
@@ -114,25 +130,32 @@ class Move(ActionWithCoords):
         self.interface.game.grid.set_tile(self.coords, Co.ROBOT_TOKEN)
         self.interface.game.robot.coords = self.coords
 
+        return Feedback()
+
 
 class PickUp(ActionWithCoords):
     """
         Action for Robot to try to pick up something from coords
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
         """
         Attempt to execute a PickUp action.
 
         :return: Feedback message
         """
+        # Deduct a point of score
+        self.interface.game.change_score()
+
         tile = self.interface.game.grid.get_tile(self.coords)
 
         if not tile.is_item():
-            return "Only Items can be picked up"
+            return Feedback("Only Items can be picked up")
 
         if self.interface.game.robot.pickup(tile.get_content()):
             tile.clear()
+
+        return Feedback()
 
 
 class Quit(Action):
@@ -140,8 +163,8 @@ class Quit(Action):
         Action to quit
     """
 
-    def execute(self) -> (str | None):
-        return Co.QUIT_MESSAGE
+    def execute(self) -> Feedback:
+        return Feedback(Co.QUIT_MESSAGE, True)
 
 
 class Refresh(Action):
@@ -149,9 +172,9 @@ class Refresh(Action):
         Action to refresh display of game state
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
         self.interface.display_state()
-        return Co.REFRESH_MESSAGE
+        return Feedback(Co.REFRESH_MESSAGE)
 
 
 class Sweep(ActionWithCoords):
@@ -159,13 +182,17 @@ class Sweep(ActionWithCoords):
         Action to Sweep something from board
     """
 
-    def execute(self) -> (str | None):
+    def execute(self) -> Feedback:
+        # Deduct a point of score
+        self.interface.game.change_score()
+
         tile = self.interface.game.grid.get_tile(self.coords)
 
         if tile.is_mess():
             tile.clear()
+            self.interface.game.change_score(Co.SCORING["sweep"])
 
-        return None
+        return Feedback()
 
 
 if __name__ == "__main__":

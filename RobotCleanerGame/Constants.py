@@ -40,6 +40,14 @@ MOVE_LIST = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 ROBOT_TOKEN = "¥"
 
+UNIVERSAL_BIN = "*"
+
+SCORING = {
+    "full": 10,
+    "half": 5,
+    "sweep": 3,
+}
+
 # Tokens short reference & description
 TOKEN_DESCRIPTIONS: dict[str, str] = {
     ROBOT_TOKEN: "Robot",
@@ -49,19 +57,19 @@ TOKEN_DESCRIPTIONS: dict[str, str] = {
     "R": "Food Bin",
     "G": "Plastic Bin",
     "B": "Glass Bin",
-    "*": "Universal Bin",
+    UNIVERSAL_BIN: "Universal Bin",
     "m": "Mess",
 }
 
-SET_OF_ITEMS = {"r", "g", "b"}
-
 SET_OF_BINS = {"R", "G", "B", "*"}
+
+SET_OF_ITEMS = {"r", "g", "b"}
 
 SET_OF_MESS = {"m"}
 
 ITEMS_TO_BIN_MAP = {
     # Item : Bins which accept that item
-    "r": {"R", "*"},
-    "g": {"G", "*"},
-    "b": {"B", "*"},
+    "r": {"*", "R"},
+    "g": {"*", "G"},
+    "b": {"*", "B"},
 }

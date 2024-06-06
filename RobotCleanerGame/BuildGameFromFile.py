@@ -70,7 +70,7 @@ def build_game_from_file(folder_path: str, interface: (In.Interface | None) = No
 
 
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Game1/")
+    g = build_game_from_file("../GameFiles/SetPieces/Game_1/")
     g.interface = In.Interface(g)
 
     g.interface.start()

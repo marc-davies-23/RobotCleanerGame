@@ -37,6 +37,9 @@ class Game:
 
         self.interface = interface
 
+        self.score = 0
+        self.game_ended = False
+
         if history is None:
             self.history = []
         else:
@@ -149,7 +152,12 @@ class Game:
                     return False
 
         # If we get here then the grid is cleared
+        self.game_ended = True
         return True
+
+    def change_score(self, change=-1):
+        if not self.game_ended:
+            self.score += change
 
 
 if __name__ == "__main__":
