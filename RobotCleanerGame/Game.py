@@ -22,15 +22,17 @@ class Game:
         History will be useful for retracing games; a necessity for advanced functions, e.g. ML
     """
 
-    def __init__(self, size_x: int = Co.DEFAULT_SIZE_X, size_y: int = Co.DEFAULT_SIZE_Y,
+    def __init__(self, tag: (str | None) = None, size_x: int = Co.DEFAULT_SIZE_X, size_y: int = Co.DEFAULT_SIZE_Y,
                  robot_start: (int, int | None) = None, interface=None, history=None) -> None:
         """
+        :param tag: Tag to identify game
         :param size_x: Horizontal size of Grid
         :param size_y: Vertical size of Grid
         :param robot_start: Robot's starting coordinates
         :param interface: Interface controls
         :param history: History list
         """
+        self.tag = tag
         self.grid = None
         self.robot = None
         self.initialise_grid(size_x, size_y, robot_start)
@@ -153,9 +155,22 @@ class Game:
 
         # If we get here then the grid is cleared
         self.game_ended = True
+
+        # Update profile high score
+        if self.interface.profile:
+            try:
+                old_score = self.interface.profile.completed[self.tag]
+            except KeyError:
+                old_score = None
+
+            if old_score is None or old_score < self.score:
+                self.interface.profile.add_completed(self.tag, self.score)
+                self.interface.profile.save()
+
         return True
 
     def change_score(self, change=-1):
+        # Default call deducts a point as this is the most common call
         if not self.game_ended:
             self.score += change
 

@@ -25,7 +25,7 @@ def read_file_to_buffer(folder_path: str) -> [str]:
     return buffer
 
 
-def build_game_from_buffer(buffer: [str], interface: (In.Interface | None) = None) -> Gm.Game:
+def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     """
     Breaks up the buffer into actionable parts.
 
@@ -38,39 +38,47 @@ def build_game_from_buffer(buffer: [str], interface: (In.Interface | None) = Non
     where T is a token type, and x, y are its coords.
 
     :param buffer: Input buffer (list of strings)
-    :param interface: Provided interface, if any
     :return: RobotCleanerGame.Game object
     """
-    line1 = buffer[0].split(",")
+    line = buffer[0].split(",")
 
-    if len(line1) != 4:
+    x = int(line[0])
+    y = int(line[1])
+    rb_start = (int(line[2]), int(line[3]))
+
+    if len(line) != 4:
         raise IOError("build_game_from_buffer: first line of file translate to four values.")
 
-    game = Gm.Game(int(line1[0]), int(line1[1]), robot_start=(int(line1[2]), int(line1[3])))
+    game = Gm.Game(size_x=x, size_y=y, robot_start=rb_start)
 
     for line in buffer[1:]:
         coords = line[1:].replace("(", "").replace(")", "").split(",")
 
         game.add_grid_token((int(coords[0]), int(coords[1])), line[0])
 
+    return game
+
+
+def build_game_from_file(folder: str, tag: (str | None) = None, interface: (In.Interface | None) = None) -> Gm.Game:
+    """
+    Combine functionality to build a game from static file as of folder path
+
+    :param tag: Game tag to identify tag
+    :param folder: Folder path
+    :param interface:  Provided interface, if any
+    :return: Game object
+    """
+
+    game = build_game_from_buffer(read_file_to_buffer(folder))
+
+    game.tag = tag
     game.interface = interface
 
     return game
 
 
-def build_game_from_file(folder_path: str, interface: (In.Interface | None) = None) -> Gm.Game:
-    """
-    Combine functionality to build a game from static file as of folder path
-
-    :param folder_path: Folder path
-    :param interface:  Provided interface, if any
-    :return: Game object
-    """
-    return build_game_from_buffer(read_file_to_buffer(folder_path), interface)
-
-
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Game_1/")
+    g = build_game_from_file("../GameFiles/SetPieces/Tutorial_1/")
     g.interface = In.Interface(g)
 
     g.interface.start()

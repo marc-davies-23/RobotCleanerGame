@@ -5,7 +5,7 @@ import Actions as Ac
 import Game as Gm
 import Interface as In
 import pygame
-import PyGameConstFuncs as PCo
+import PyGameConstants as PCo
 import PyGameScreens as PSc
 
 
@@ -15,8 +15,9 @@ def map_pixel_to_tile_coord(pixel_coords: (int, int)) -> (int, int):
 
 class PyGameInterface(In.Interface):
 
-    def __init__(self, game: (Gm.Game | None) = None, width: int = PCo.WIN_WIDTH, height: int = PCo.WIN_HEIGHT) -> None:
-        super().__init__(game)
+    def __init__(self, game: (Gm.Game | None) = None, profile_name: (str | None) = None,
+                 width: int = PCo.WIN_WIDTH, height: int = PCo.WIN_HEIGHT) -> None:
+        super().__init__(game, profile_name)
         self.state = {PCo.CURRENT_SCREEN: PCo.MENU_SCREEN,
                       PCo.PRESSED_BUTTON: None}
 

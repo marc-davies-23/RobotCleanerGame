@@ -5,12 +5,19 @@
 """
 
 import Actions as Ac
+import Profile as Pr
 import string
 
 
 class Interface:
-    def __init__(self, game=None) -> None:
+    def __init__(self, game=None, profile_name: (str | None) = None) -> None:
         self.game = game
+
+        if profile_name is None:
+            self.profile = None
+        else:
+            self.profile = Pr.Profile(profile_name)
+            self.profile.load()
 
     def display_state(self) -> None:
         if self.game.grid:

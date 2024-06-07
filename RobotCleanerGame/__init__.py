@@ -10,6 +10,6 @@ from Game import *
 from Grid import *
 from Interface import *
 from InterfaceFromFile import *
-from PyGameConstFuncs import *
-from PyGameConstFuncs import *
+from PyGameConstants import *
+from PyGameConstants import *
 from Robot import *

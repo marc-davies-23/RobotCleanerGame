@@ -4,8 +4,9 @@
 import Actions as Ac
 import BuildGameFromFile as Bd
 import Constants as Co
-import PyGameConstFuncs as PCo
+import PyGameConstants as PCo
 import Game as Gm
+import os
 import pygame
 import PyGameInterface as PIn
 
@@ -147,39 +148,54 @@ class LoadScreen(PyGameScreen):
     @staticmethod
     def factory(interface) -> PyGameScreen:
         x_limit = 5
+        win = interface.window  # Shorten calls
         message = PCo.FEEDBACK_MSG_SELECT_GAME_TO_LOAD
 
-        x = PCo.TILE_SIZE  # Start with a buffer
-        y = PCo.TILE_SIZE  # Ditto
+        x = 0              # Declare here for scope
+        y = -1 * PCo.TILE_SIZE  # Start negative for the loop
 
         load_scn = LoadScreen(interface)
 
-        for i in range(len(PCo.TUTORIALS)):
-            load_scn.add_element(PyGameImageElement(interface.window, x, y, image=PCo.TUTORIALS[i]))
+        for game_type in [PCo.TUTORIAL_PREFIX, PCo.GAME_PREFIX]:
+            i = 0
 
-            tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
-            load_scn.inventory[(tile_x, tile_y)] = PCo.TUTORIAL_PREFIX + str(i + 1)
+            x = PCo.TILE_SIZE  # Start with padding
+            y += 2 * PCo.TILE_SIZE
 
-            if i + 1 % x_limit == 0:
-                x = PCo.TILE_SIZE
-                y += 2 * PCo.TILE_SIZE
-            else:
-                x += 2 * PCo.TILE_SIZE
+            # Build Tutorials
+            while True:
+                i += 1
 
-        x = PCo.TILE_SIZE  # Start with a buffer
-        y += 2 * PCo.TILE_SIZE
+                current_game = game_type + str(i)
 
-        for i in range(len(PCo.GAMES)):
-            load_scn.add_element(PyGameImageElement(interface.window, x, y, image=PCo.GAMES[i]))
+                folder_path = PCo.SET_PIECES_PATH + current_game + "/"
 
-            tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
-            load_scn.inventory[(tile_x, tile_y)] = PCo.GAME_PREFIX + str(i + 1)
+                if not os.path.exists(folder_path):
+                    break
 
-            if i % x_limit == 0:
-                x = PCo.TILE_SIZE
-            else:
-                x += 2 * PCo.TILE_SIZE
+                if interface.profile and current_game in interface.profile.completed:
+                    image = PCo.GAME_BUTTON_COMPLETE
+                    color = PCo.COLOR_WHITE
+                else:
+                    image = PCo.GAME_BUTTON_INCOMPLETE
+                    color = PCo.COLOR_BLACK
 
+                text = game_type[0] + str(i)
+                padding = 16 - 8 * (len(text) - 2)
+                load_scn.add_element(PyGameImageElement(win, x, y, image=image))
+                load_scn.add_element(PyGameTextElement(win, x+padding, y+16, text=text, color=color,
+                                                       size=30, bold=True, antialias=True))
+
+                tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
+                load_scn.inventory[(tile_x, tile_y)] = current_game
+
+                if i % x_limit == 0:
+                    x = PCo.TILE_SIZE
+                    y += 2 * PCo.TILE_SIZE
+                else:
+                    x += 2 * PCo.TILE_SIZE
+
+        # Bottom of the screen
         x = 5 * PCo.BUTTON_WIDTH
         y = interface.win_height - PCo.TILE_SIZE - PCo.FEEDBACK_TEXT_BOX_HEIGHT
 
@@ -197,7 +213,8 @@ class LoadScreen(PyGameScreen):
 
         # If we get a string here, try to load that game
         if isinstance(screen_item, str):
-            self.interface.game = Bd.build_game_from_file("../GameFiles/SetPieces/" + screen_item + "/", self.interface)
+            self.interface.game = Bd.build_game_from_file("../GameFiles/SetPieces/" + screen_item + "/",
+                                                          tag=screen_item, interface=self.interface)
             self.interface.state[PCo.CURRENT_SCREEN] = PCo.MAIN_SCREEN
             self.interface.give_user_feedback("Loading " + screen_item.replace("_", " "))
             return
@@ -245,8 +262,8 @@ class MainScreen(PyGameScreen):
         # Score
         x += PCo.BUTTON_WIDTH
         score = str(interface.game.score)
-        main.add_element(PyGameTextElement(window, x+24, y+8, "Score:", 24, bold=True, antialias=True))
-        main.add_element(PyGameTextElement(window, x+60, y+40, score, 24, bold=False, antialias=True))
+        main.add_element(PyGameTextElement(window, x + 24, y + 8, "Score:", 24, bold=True, antialias=True))
+        main.add_element(PyGameTextElement(window, x + 60, y + 40, score, 24, bold=False, antialias=True))
 
         # Menu button
         x += PCo.BUTTON_WIDTH

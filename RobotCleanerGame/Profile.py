@@ -1,6 +1,7 @@
 """
     The Profile class stores variables associated to a particular player's play through.
 """
+import os
 
 PROFILE_FOLDER_PATH = "../GameFiles/Profiles/"
 PROFILE_FILE_SUFFIX = ".rcgp"
@@ -14,6 +15,8 @@ class Profile:
 
     def add_completed(self, game_label: str, score: int):
         self.completed[game_label] = score
+        # Sort after insertion
+        self.completed = dict(sorted(self.completed.items()))
 
     def reset_completed(self):
         self.completed = {}
@@ -30,15 +33,17 @@ class Profile:
             pass
 
     def save(self):
+        # Save should be called only when something is added to the completed list; we can assume it will be non-empty
         with open(PROFILE_FOLDER_PATH + self.name + PROFILE_FILE_SUFFIX, "w") as file:
             for k in self.completed:
                 file.write(k + SEPARATOR + str(self.completed[k]) + "\n")
 
 
 if __name__ == "__main__":
-    p = Profile()
-    #p.add_completed("test", 1)
-    #p.add_completed("foo", 2)
-    #p.save()
-    p.load()
-    print(p.completed)
+    """p = Profile()
+    p.add_completed("test", 1)
+    p.add_completed("foo", 2)
+    p.save()
+    #p.load()
+    print(p.completed)"""
+    pass

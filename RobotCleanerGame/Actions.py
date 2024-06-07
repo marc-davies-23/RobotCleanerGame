@@ -8,7 +8,7 @@
     actions could increase with future functionality; thus the concept is hopefully future-proof.
 """
 import Constants as Co
-import PyGameConstFuncs as PCo
+import PyGameConstants as PCo
 
 
 class Feedback:

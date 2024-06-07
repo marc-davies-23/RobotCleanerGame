@@ -63,7 +63,6 @@ BUT_SWEEP_PRESSED = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_PRESSED.png")
 BUT_SWEEP_UNPRESS = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_UNPRESSED.png")
 BUT_UNAVAILABLE = pygame.image.load(PATH_TOKENS_64 + "BUTTON_UNAVAILABLE.png")
 
-
 PRESSED_BUTTON = "pres_but"
 
 CURRENT_SCREEN = "curr_scr"
@@ -83,14 +82,13 @@ FEEDBACK_MSG_PRESS_H_FOR_HELP = "Press H for Help."
 FEEDBACK_MSG_PRESS_B_TO_GO_BACK = "Press B to go back."
 FEEDBACK_MSG_SELECT_GAME_TO_LOAD = "Select a game to load."
 
+SET_PIECES_PATH = "../GameFiles/SetPieces/"
+
 TUTORIAL_PREFIX = "Tutorial_"
 GAME_PREFIX = "Game_"
 
-TUTORIALS = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T1_INCOMPLETE.png"),
-             pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T2_INCOMPLETE.png"),
-             pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_T3_INCOMPLETE.png")]
-
-GAMES = [pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_1_INCOMPLETE.png")]
+GAME_BUTTON_COMPLETE = pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_COMPLETE.png")
+GAME_BUTTON_INCOMPLETE = pygame.image.load(PATH_TOKENS_64 + "GAME_BUTTON_INCOMPLETE.png")
 
 HELP_TOKEN_ADDITIONAL_TEXT: dict[str, str] = {
     Co.ROBOT_TOKEN: "The robot can carry up to three items of garbage and sweep messes.",
