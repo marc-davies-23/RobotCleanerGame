@@ -176,15 +176,23 @@ class LoadScreen(PyGameScreen):
                 if interface.profile and current_game in interface.profile.completed:
                     image = PCo.GAME_BUTTON_COMPLETE
                     color = PCo.COLOR_WHITE
+                    score = interface.profile.completed[current_game]
                 else:
                     image = PCo.GAME_BUTTON_INCOMPLETE
                     color = PCo.COLOR_BLACK
+                    score = None
 
                 text = game_type[0] + str(i)
                 padding = 16 - 8 * (len(text) - 2)
                 load_scn.add_element(PyGameImageElement(win, x, y, image=image))
                 load_scn.add_element(PyGameTextElement(win, x+padding, y+16, text=text, color=color,
                                                        size=30, bold=True, antialias=True))
+
+                if score is not None:
+                    text = str(score)
+                    padding = 16 - 8 * (len(text) - 2)
+                    load_scn.add_element(PyGameTextElement(win, x+padding, y + 80, text=text, color=PCo.COLOR_WHITE,
+                                                           size=30, bold=True, antialias=True))
 
                 tile_x, tile_y = PIn.map_pixel_to_tile_coord((x, y))
                 load_scn.inventory[(tile_x, tile_y)] = current_game
@@ -294,20 +302,22 @@ class MainScreen(PyGameScreen):
 
                 tile = interface.game.grid.get_tile((x, y))
 
-                # Add the base background tile
-                main.add_element(
-                    PyGameImageElement(interface.window, x * PCo.TILE_SIZE, y * PCo.TILE_SIZE, image=PCo.TILE_IMG))
+                # Nothing can happen on blocked tiles
+                if not tile.is_blocked():
+                    # Add the base background tile
+                    main.add_element(PyGameImageElement(interface.window,x * PCo.TILE_SIZE, y * PCo.TILE_SIZE,
+                                                        image=PCo.TILE_IMG))
 
-                # If this tile can be clicked for an action, add them to the screen inventory
-                if (x, y) in ordered_actions:
-                    main.inventory[(x, y)] = ordered_actions[(x, y)]
+                    # If this tile can be clicked for an action, add them to the screen inventory
+                    if (x, y) in ordered_actions:
+                        main.inventory[(x, y)] = ordered_actions[(x, y)]
 
-                if tile.is_empty():
-                    # Go to next
-                    continue
+                    if tile.is_empty():
+                        # Go to next
+                        continue
 
-                main.add_element(PyGameTokenElement(interface.window, x * PCo.TILE_SIZE, y * PCo.TILE_SIZE,
-                                                    token=TOKEN_MAP[tile.get_content()], incr=interface.beat()))
+                    main.add_element(PyGameTokenElement(interface.window, x * PCo.TILE_SIZE, y * PCo.TILE_SIZE,
+                                                        token=TOKEN_MAP[tile.get_content()], incr=interface.beat()))
 
         if len(interface.feedback_msg) > 0:
             main.add_element(feedback_box_factory(interface.window, interface.feedback_msg))

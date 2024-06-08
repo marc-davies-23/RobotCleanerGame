@@ -14,6 +14,9 @@ DEFAULT_SIZE_Y = 3
 # Empty_tile
 EMPTY_TILE = "."
 
+# Blocked Tile
+BLOCKED_TILE = " "
+
 # Robot max actions
 MAX_CARRY = 3
 MAX_SWEEP = 1

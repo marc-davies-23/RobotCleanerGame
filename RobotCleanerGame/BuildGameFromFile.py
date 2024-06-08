@@ -52,6 +52,8 @@ def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     game = Gm.Game(size_x=x, size_y=y, robot_start=rb_start)
 
     for line in buffer[1:]:
+        if "#" in line:
+            line, _ = line.split("#", 1)  # strip out comments
         coords = line[1:].replace("(", "").replace(")", "").split(",")
 
         game.add_grid_token((int(coords[0]), int(coords[1])), line[0])
@@ -78,7 +80,7 @@ def build_game_from_file(folder: str, tag: (str | None) = None, interface: (In.I
 
 
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Tutorial_1/")
+    g = build_game_from_file("../GameFiles/SetPieces/Tutorial_3/")
     g.interface = In.Interface(g)
 
     g.interface.start()

@@ -31,6 +31,14 @@ class Tile:
         """
         return self.__content in Co.SET_OF_BINS
 
+    def is_blocked(self) -> bool:
+        """
+        Is the Tile blocked?
+
+        :return: True/False that Tile is blocked
+        """
+        return self.__content == Co.BLOCKED_TILE
+
     def is_empty(self) -> bool:
         """
         Is the Tile Empty?

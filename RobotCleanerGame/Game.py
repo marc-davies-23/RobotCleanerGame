@@ -69,8 +69,8 @@ class Game:
         :param coords: Coordinates of the Grid where a token should be placed.
         :param token_symbol: Token character symbol; see Constants.py
         """
-        if not (token_symbol in Co.SET_OF_ITEMS | Co.SET_OF_BINS | Co.SET_OF_MESS):
-            # Only Items, Bins, and Messes can be placed for now
+        if not (token_symbol in {Co.BLOCKED_TILE} | Co.SET_OF_ITEMS | Co.SET_OF_BINS | Co.SET_OF_MESS):
+            # Only Blocked Tile, Items, Bins, and Messes can be placed for now
             raise ValueError(f"Game.add_grid_token: token_symbol not valid")
 
         if not self.grid.get_tile(coords).is_empty():
@@ -103,6 +103,9 @@ class Game:
                 else:
                     # Do nothing: logically necessary
                     pass
+            elif tile.is_blocked():
+                # Do nothing if blocked
+                pass
             elif tile.is_item():
                 # Can pick up an item
                 actions.append(Ac.PickUp(self.interface, coord))
@@ -150,7 +153,7 @@ class Game:
         # Now check the grid; this is slower
         for j in self.grid.grid:
             for i in j:
-                if not (i.get_content() in {Co.EMPTY_TILE, Co.ROBOT_TOKEN} | Co.SET_OF_BINS):
+                if not (i.get_content() in {Co.BLOCKED_TILE, Co.EMPTY_TILE, Co.ROBOT_TOKEN} | Co.SET_OF_BINS):
                     return False
 
         # If we get here then the grid is cleared
@@ -176,5 +179,4 @@ class Game:
 
 
 if __name__ == "__main__":
-    g = Game()
-    print(g.grid)
+    pass

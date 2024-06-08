@@ -1,6 +1,6 @@
 3,3,2,1
-*(0,0)
-R(1,0)
-b(1,1)
-r(2,2)
-m(2,0)
+*(0,0) # Universal bin
+R(1,0) # Red bin
+b(1,1) # Blue garbage
+r(2,2) # Red garbage
+m(2,0) # Mess
