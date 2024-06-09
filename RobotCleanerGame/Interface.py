@@ -102,7 +102,7 @@ class Interface:
         if action:
             feedback = action.execute()
             if feedback.message:
-                self.give_user_feedback(feedback)
+                self.give_user_feedback(feedback.message)
 
             return not feedback.quit
 

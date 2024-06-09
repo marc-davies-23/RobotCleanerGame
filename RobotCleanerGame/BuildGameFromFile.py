@@ -7,7 +7,8 @@ from Constants import SET_PIECES_FOLDER
 import Game as Gm
 import Interface as In
 
-ALLOW_EXPORT_SOLVE = True
+# Manually set this to False to prevent overwriting
+ALLOW_EXPORT_SOLVE = False
 
 FILE_NAME = "game.rcgg"
 SOLVE_FILE = "solve.rcgs"
@@ -21,7 +22,11 @@ def read_file_to_buffer(folder_path: str) -> [str]:
     :return: Buffer as list of strings
     """
     buffer = []
-    with open(folder_path + FILE_NAME, "r") as file:
+    if folder_path[len(folder_path)-1] == "/":
+        file_path = folder_path + FILE_NAME
+    else:
+        file_path = folder_path + "/" + FILE_NAME
+    with open(file_path, "r") as file:
         for line in file:
             line = line.replace("\r", "")
             buffer.append(line.replace("\n", ""))  # Strip out line breaks
