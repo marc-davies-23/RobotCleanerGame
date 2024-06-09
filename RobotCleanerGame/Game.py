@@ -40,7 +40,7 @@ class Game:
         self.interface = interface
 
         self.score = 0
-        self.game_ended = False
+        self.ended = False
 
         if history is None:
             self.history = []
@@ -157,7 +157,7 @@ class Game:
                     return False
 
         # If we get here then the grid is cleared
-        self.game_ended = True
+        self.ended = True
 
         # Update profile high score
         if self.interface.profile:
@@ -174,7 +174,7 @@ class Game:
 
     def change_score(self, change=-1):
         # Default call deducts a point as this is the most common call
-        if not self.game_ended:
+        if not self.ended:
             self.score += change
 
 

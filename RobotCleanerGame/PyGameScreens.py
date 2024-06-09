@@ -221,7 +221,7 @@ class LoadScreen(PyGameScreen):
 
         # If we get a string here, try to load that game
         if isinstance(screen_item, str):
-            self.interface.game = Bd.build_game_from_file("../GameFiles/SetPieces/" + screen_item + "/",
+            self.interface.game = Bd.build_game_from_file(Co.SET_PIECES_FOLDER + screen_item + "/",
                                                           tag=screen_item, interface=self.interface)
             self.interface.state[PCo.CURRENT_SCREEN] = PCo.MAIN_SCREEN
             self.interface.give_user_feedback("Loading " + screen_item.replace("_", " "))

@@ -3,10 +3,14 @@
     A set of functions to build a game from a file
 
 """
+from Constants import SET_PIECES_FOLDER
 import Game as Gm
 import Interface as In
 
+ALLOW_EXPORT_SOLVE = True
+
 FILE_NAME = "game.rcgg"
+SOLVE_FILE = "solve.rcgs"
 
 
 def read_file_to_buffer(folder_path: str) -> [str]:
@@ -61,7 +65,7 @@ def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     return game
 
 
-def build_game_from_file(folder: str, tag: (str | None) = None, interface: (In.Interface | None) = None) -> Gm.Game:
+def build_game_from_file(folder: str, tag: (str | None) = None, interface=None) -> Gm.Game:
     """
     Combine functionality to build a game from static file as of folder path
 
@@ -79,8 +83,31 @@ def build_game_from_file(folder: str, tag: (str | None) = None, interface: (In.I
     return game
 
 
+def export_solve(game_tag, history):
+
+    # Double check we're allowed to export as this may override an existing solve file
+    assert ALLOW_EXPORT_SOLVE
+
+    solve_file_path = SET_PIECES_FOLDER + game_tag + "/" + SOLVE_FILE
+
+    print(f"Exporting solve to: {solve_file_path}")
+
+    data = ""
+
+    for a in history:
+        try:
+            data = (data + a.__class__.__name__ + str(a.coords) + "\n").replace(" ", "")
+        except AttributeError:
+            pass
+
+        with open(solve_file_path, "w") as file:
+            file.write(data)
+
+
 if __name__ == "__main__":
-    g = build_game_from_file("../GameFiles/SetPieces/Tutorial_3/")
+    tag = "Tutorial_4"
+    g = build_game_from_file(SET_PIECES_FOLDER + tag + "/")
     g.interface = In.Interface(g)
+    g.tag = tag
 
     g.interface.start()

@@ -1,0 +1,6 @@
+PickUp(1,0)
+Move(1,0)
+Drop(2,0)
+PickUp(1,1)
+Move(1,1)
+Drop(2,1)

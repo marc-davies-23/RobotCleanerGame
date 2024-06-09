@@ -5,8 +5,11 @@
 """
 
 import Actions as Ac
+import BuildGameFromFile as Bd
 import Profile as Pr
 import string
+
+EXPORT_SOLVE = "export solve"
 
 
 class Interface:
@@ -72,9 +75,18 @@ class Interface:
         print(f"Q : Quit")
         lookup["q"] = Ac.Quit(self)
 
-        selected = request_input("\nSelect action: ", validation_values=list(lookup.keys()))
+        while True:
+            selected = request_input("\nSelect action: ")
 
-        return lookup[selected]
+            if selected in list(lookup.keys()):
+                return lookup[selected]
+
+            if selected == EXPORT_SOLVE and self.game.ended and Bd.ALLOW_EXPORT_SOLVE:
+                Bd.export_solve(self.game.tag, self.game.history)
+                return None
+
+            # If we get to here, loop back with message
+            print("Value not accepted, please try again.\n")
 
     def give_user_feedback(self, feedback: str) -> None:
         # Might need to be an instance class with inheritance
@@ -143,17 +155,14 @@ class Interface:
             self.event_quit()
 
 
-def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True) -> str:
+def request_input(prompt: str, convert_to_int=True, convert_to_lowercase=True) -> str:
     """
         Takes input from the console and validates it.
     :param prompt: Prompt for user
-    :param validation_values: List of valid values
     :param convert_to_int: Should input be converted to int?
     :param convert_to_lowercase: Should input be converted to lowercase?
     :return:
     """
-    if validation_values is None:
-        validation_values = []
 
     while True:
         try:
@@ -164,10 +173,8 @@ def request_input(prompt: str, validation_values=None, convert_to_int=True, conv
             elif convert_to_lowercase and not (received in string.digits):
                 received = received.lower()
 
-            if received in validation_values or not validation_values:
-                return received
-            else:
-                print("Value not accepted, please try again.\n")
+            return received
+
         except ValueError:
             print("Value error, please try again.\n")
 

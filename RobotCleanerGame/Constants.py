@@ -76,3 +76,5 @@ ITEMS_TO_BIN_MAP = {
     "g": {"*", "G"},
     "b": {"*", "B"},
 }
+
+SET_PIECES_FOLDER = "../GameFiles/SetPieces/"
