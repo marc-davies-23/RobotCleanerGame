@@ -7,8 +7,8 @@ from Constants import SET_PIECES_FOLDER
 import Game as Gm
 import Interface as In
 
-# Manually set this to False to prevent overwriting
-ALLOW_EXPORT_SOLVE = False
+# Set this value to false; toggle it with toggle_allow_solve() below
+allow_export_solve = False
 
 FILE_NAME = "game.rcgg"
 SOLVE_FILE = "solve.rcgs"
@@ -22,7 +22,7 @@ def read_file_to_buffer(folder_path: str) -> [str]:
     :return: Buffer as list of strings
     """
     buffer = []
-    if folder_path[len(folder_path)-1] == "/":
+    if folder_path[len(folder_path) - 1] == "/":
         file_path = folder_path + FILE_NAME
     else:
         file_path = folder_path + "/" + FILE_NAME
@@ -70,11 +70,11 @@ def build_game_from_buffer(buffer: [str]) -> Gm.Game:
     return game
 
 
-def build_game_from_file(folder: str, tag: (str | None) = None, interface=None) -> Gm.Game:
+def build_game_from_file(folder: str, game_tag: (str | None) = None, interface=None) -> Gm.Game:
     """
     Combine functionality to build a game from static file as of folder path
 
-    :param tag: Game tag to identify tag
+    :param game_tag: Game tag to identify tag
     :param folder: Folder path
     :param interface:  Provided interface, if any
     :return: Game object
@@ -82,16 +82,21 @@ def build_game_from_file(folder: str, tag: (str | None) = None, interface=None) 
 
     game = build_game_from_buffer(read_file_to_buffer(folder))
 
-    game.tag = tag
+    game.tag = game_tag
     game.interface = interface
 
     return game
 
 
-def export_solve(game_tag, history):
+def toggle_allow_solve():
+    # Force the calling of this method
+    global allow_export_solve
+    allow_export_solve = not allow_export_solve
 
+
+def export_solve(game_tag, history):
     # Double check we're allowed to export as this may override an existing solve file
-    assert ALLOW_EXPORT_SOLVE
+    assert allow_export_solve
 
     solve_file_path = SET_PIECES_FOLDER + game_tag + "/" + SOLVE_FILE
 
@@ -110,7 +115,9 @@ def export_solve(game_tag, history):
 
 
 if __name__ == "__main__":
-    tag = "Tutorial_5"
+    tag = "Game_2"
+
+    toggle_allow_solve()
     g = build_game_from_file(SET_PIECES_FOLDER + tag + "/")
     g.interface = In.Interface(g)
     g.tag = tag

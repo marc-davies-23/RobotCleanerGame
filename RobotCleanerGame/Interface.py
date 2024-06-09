@@ -81,7 +81,7 @@ class Interface:
             if selected in list(lookup.keys()):
                 return lookup[selected]
 
-            if selected == EXPORT_SOLVE and self.game.ended and Bd.ALLOW_EXPORT_SOLVE:
+            if selected == EXPORT_SOLVE and self.game.ended and Bd.allow_export_solve:
                 Bd.export_solve(self.game.tag, self.game.history)
                 return None
 
