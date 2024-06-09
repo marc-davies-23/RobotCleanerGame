@@ -110,7 +110,7 @@ def export_solve(game_tag, history):
 
 
 if __name__ == "__main__":
-    tag = "Tutorial_4"
+    tag = "Tutorial_5"
     g = build_game_from_file(SET_PIECES_FOLDER + tag + "/")
     g.interface = In.Interface(g)
     g.tag = tag
